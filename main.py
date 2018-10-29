@@ -38,9 +38,10 @@ def handle_form():
     if passconf == '' or valid_check(passconf, password) == False or password != passconf:
         passconf_error = "Passwords don't match"
 
+    at_count = 0
+    period_count = 0
+
     for l in email:
-        at_count = 0
-        period_count = 0
         if l == '@':
             at_count = at_count + 1
         elif l == '.':
@@ -48,13 +49,14 @@ def handle_form():
         if l == ' ':
             email_error = "That is not a valid email!"
             break
-        if at_count != 1 and period_count != 1:
-            email_error = "That is not a valid email!"
+
+    if at_count != 1 or period_count != 1:
+        email_error = "That is not a valid email!"
     
 
     if name_error == '' and password_error == '' and passconf_error == '' and email_error == '':
         return render_template('signup.html', name=name)
     else:
-        return render_template('form.html', name_error=name_error, password_error=password_error, passconf_error=passconf_error)
+        return render_template('form.html', name=name, email=email, name_error=name_error, password_error=password_error, passconf_error=passconf_error, email_error=email_error)
 
 app.run()
