@@ -5,6 +5,18 @@ app = Flask(__name__)
 
 app.config['DEBUG'] = True
 
+def valid_check(word, t):
+    if t == "name":
+        for l in word:
+            if l == " ":
+                return False
+            else:
+                return True
+    if len(word) >= 3 and len(word) <= 20:
+        return True
+    else:
+        return False
+
 @app.route('/')
 def index():
     return render_template('form.html')
@@ -15,13 +27,34 @@ def handle_form():
     password = request.form['password']
     passconf = request.form['passconf']
     email = request.form['email']
+    name_error = password_error = passconf_error = email_error = ''
 
-    if name == '' or password == '' or passconf == '':
+    if name == '' or valid_check(name, name) == False:
         name_error = "That's not a valid username"
-        password_error = "That's not a valid password"
-        passconf_error = "Passwords don't match"
-        return render_template('form.html', name_error=name_error, password_error=password_error, passconf_error=passconf_error)
 
-    return render_template('signup.html', name=name)
+    if password == '' or valid_check(password, password) == False:
+        password_error = "That's not a valid password"
+
+    if passconf == '' or valid_check(passconf, password) == False or password != passconf:
+        passconf_error = "Passwords don't match"
+
+    for l in email:
+        at_count = 0
+        period_count = 0
+        if l == '@':
+            at_count = at_count + 1
+        elif l == '.':
+            period_count = period_count + 1
+        if l == ' ':
+            email_error = "That is not a valid email!"
+            break
+        if at_count != 1 and period_count != 1:
+            email_error = "That is not a valid email!"
+    
+
+    if name_error == '' and password_error == '' and passconf_error == '' and email_error == '':
+        return render_template('signup.html', name=name)
+    else:
+        return render_template('form.html', name_error=name_error, password_error=password_error, passconf_error=passconf_error)
 
 app.run()
